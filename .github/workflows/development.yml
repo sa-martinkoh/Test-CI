@@ -3,8 +3,8 @@ name: Deployment
 on:
   workflow_dispatch:
     inputs:
-      name:
-        type: platform
+      platform:
+        type: choice
         required: true
         options:
         - Shareable Asset
