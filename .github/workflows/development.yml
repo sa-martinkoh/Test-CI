@@ -11,8 +11,10 @@ on:
         - Liberty
 
 jobs:
+  print:
+    name: Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
   check:
-    name: Check ${{ github.ref_name }} Deploy Environment
+    name: Check Deploy Environment
     runs-on: ubuntu-latest
     outputs:
       deploy-environment: ${{ steps.check-deploy-environment.outputs.environment }}
@@ -41,7 +43,7 @@ jobs:
 
   deploy:
     needs: check
-    name: Build and Deploy to [${{ needs.check.outputs.deploy-environment }}] ${{ github.event.inputs.platform }}
+    name: Build and Deploy to ${{ needs.check.outputs.deploy-environment }}
     runs-on: ubuntu-latest
     if: needs.check.outputs.deploy-environment != 'none'
 
