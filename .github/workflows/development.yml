@@ -1,10 +1,18 @@
 name: Deployment
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        type: platform
+        required: true
+        options:
+        - Shareable Asset
+        - Liberty
 
 jobs:
   check:
-    name: Check Deploy Environment
+    name: Check ${{ github.ref_name }} Deploy Environment
     runs-on: ubuntu-latest
     outputs:
       deploy-environment: ${{ steps.check-deploy-environment.outputs.environment }}
@@ -33,7 +41,7 @@ jobs:
 
   deploy:
     needs: check
-    name: Build and Deploy to ${{ needs.check.outputs.deploy-environment }}
+    name: Build and Deploy to [${{ needs.check.outputs.deploy-environment }}] ${{ github.event.inputs.platform }}
     runs-on: ubuntu-latest
     if: needs.check.outputs.deploy-environment != 'none'
 
