@@ -1,0 +1,47 @@
+name: Deployment
+
+workflow_dispatch:
+
+jobs:
+  check:
+    name: Check Deploy Environment
+    runs-on: ubuntu-latest
+    outputs:
+      deploy-environment: ${{ steps.check-deploy-environment.outputs.environment }}
+    steps:
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5
+
+    - id: check-deploy-environment
+      run: |
+        if [[ "${{ steps.branch-name.outputs.current_branch }}" =~ ^feature/.* ]]
+        then
+          echo "::set-output name=environment::develop"
+        elif [[ "${{ steps.branch-name.outputs.current_branch }}" == 'develop' ]]
+        then
+          echo "::set-output name=environment::develop"
+        elif [[ "${{ steps.branch-name.outputs.current_branch }}" =~ ^release/.* ]]
+        then
+          echo "::set-output name=environment::staging"
+        elif [[ "${{ steps.branch-name.outputs.current_branch }}" == 'main' ]]
+        then
+          echo "::set-output name=environment::production"
+        else
+          echo "::set-output name=environment::none"
+        fi
+
+  deploy:
+    needs: check
+    name: Build and Deploy to ${{ needs.check.outputs.deploy-environment }}
+    runs-on: ubuntu-latest
+    if: needs.check.outputs.deploy-environment != 'none'
+
+    steps:
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5
+
+    - name: Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.check.outputs.deploy-environment }}
+      run: |
+        echo "Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.check.outputs.deploy-environment }}"
