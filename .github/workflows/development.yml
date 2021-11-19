@@ -13,10 +13,12 @@ on:
 jobs:
   print:
     name: Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
+    runs-on: ubuntu-latest
     steps:
     - run: echo Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
 
   check:
+    need: print
     name: Check Deploy Environment
     runs-on: ubuntu-latest
     outputs:
