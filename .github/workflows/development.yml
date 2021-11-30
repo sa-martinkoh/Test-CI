@@ -9,9 +9,19 @@ on:
         options:
         - Shareable Asset
         - Liberty
+      tag:
+        description: 'Create tag for main branch'
 
 jobs:
+  create-tag:
+    name: Creating tag ${{ github.event.inputs.message }}
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo Creating tag '${{ github.event.inputs.message }}'
+
   print:
+    needs: create-tag
     name: Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
     runs-on: ubuntu-latest
     steps:
