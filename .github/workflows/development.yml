@@ -46,11 +46,44 @@ jobs:
           echo "::set-output name=environment::none"
         fi
 
-  deploy:
+  build:
     needs: check
     name: Build and Deploy to ${{ needs.check.outputs.deploy-environment }}
     runs-on: ubuntu-latest
     if: needs.check.outputs.deploy-environment != 'none'
+
+    steps:
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5
+
+    - name: Building branch ${{ steps.branch-name.outputs.current_branch }}
+      run: |
+        echo "Building branch ${{ steps.branch-name.outputs.current_branch }}"
+
+
+  deploy:
+    needs: build
+    name: Deploy to ${{ needs.check.outputs.deploy-environment }}
+    runs-on: ubuntu-latest
+    if: needs.check.outputs.deploy-environment != 'none' && needs.check.outputs.deploy-environment != 'production'
+
+    steps:
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5
+
+    - name: Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.check.outputs.deploy-environment }}
+      run: |
+        echo "Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.check.outputs.deploy-environment }}"
+
+
+  deploy-prod:
+    needs: build
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: needs.check.outputs.deploy-environment == 'production'
+    environment: production
 
     steps:
     - name: Get branch name
