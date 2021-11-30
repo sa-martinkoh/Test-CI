@@ -62,7 +62,7 @@ jobs:
         echo "Building branch ${{ steps.branch-name.outputs.current_branch }}"
 
 
-  deploy:
+  deploy-nonprod:
     needs: build
     name: Deploy to ${{ needs.check.outputs.deploy-environment }}
     runs-on: ubuntu-latest
