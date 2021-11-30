@@ -84,7 +84,7 @@ jobs:
 
   deploy-prod:
     needs: build
-    name: Deploy to Production
+    name: Deploy to ${{ needs.build.outputs.deploy-environment }}
     runs-on: ubuntu-latest
     if: needs.build.outputs.deploy-environment == 'production'
     environment: production
