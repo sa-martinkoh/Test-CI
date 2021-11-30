@@ -14,11 +14,16 @@ on:
 
 jobs:
   create-tag:
-    name: Creating tag ${{ github.event.inputs.tag }} for master branch
+    name: Creating tag ${{ github.event.inputs.tag }} for 'main' branch
     if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
-    - run: echo Creating tag '${{ github.event.inputs.message }}'
+    - run:  |
+        if git rev-parse -q --verify "refs/tags/${{ github.event.inputs.tag }}" >/dev/null; then
+          echo "tag '${{ github.event.inputs.message }}' already exists"
+        else
+          echo Creating tag '${{ github.event.inputs.message }}'
+        fi
 
   print:
     needs: create-tag
