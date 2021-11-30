@@ -26,9 +26,11 @@ jobs:
     - id: check
       run:  |
         if git rev-parse -q --verify "refs/tags/${{ github.event.inputs.tag }}" >/dev/null; then
-          echo "tag '${{ github.event.inputs.message }}' already exists"
+          echo "tag '${{ github.event.inputs.tag }}' already exists"
         else
-          echo Creating tag '${{ github.event.inputs.message }}'
+          echo Creating tag '${{ github.event.inputs.tag }}'
+          git tag '${{ github.event.inputs.tag }}'
+          git push origin '${{ github.event.inputs.tag }}'
         fi
 
   print:
