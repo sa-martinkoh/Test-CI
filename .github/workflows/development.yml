@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.check.outputs.deploy-environment != 'none'
     outputs:
-      deploy-environment: ${{ steps.check-deploy-environment.outputs.environment }}
+      deploy-environment: ${{ steps.building.outputs.environment }}
 
     steps:
     - name: Get branch name
@@ -60,6 +60,7 @@ jobs:
       uses: tj-actions/branch-names@v5
 
     - name: Building branch ${{ steps.branch-name.outputs.current_branch }}
+      id: building
       run: |
         echo "Building branch ${{ steps.branch-name.outputs.current_branch }}"
         echo "::set-output name=environment::${{ needs.check.outputs.deploy-environment }}"
