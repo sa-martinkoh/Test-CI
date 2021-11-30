@@ -60,13 +60,14 @@ jobs:
     - name: Building branch ${{ steps.branch-name.outputs.current_branch }}
       run: |
         echo "Building branch ${{ steps.branch-name.outputs.current_branch }}"
+        echo "::set-output name=environment::${{ needs.check.outputs.deploy-environment }}"
 
 
   deploy-nonprod:
     needs: build
-    name: Deploy to ${{ needs.check.outputs.deploy-environment }}
+    name: Deploy to ${{ needs.build.outputs.deploy-environment }}
     runs-on: ubuntu-latest
-    if: needs.check.outputs.deploy-environment != 'none' && needs.check.outputs.deploy-environment != 'production'
+    if: needs.build.outputs.deploy-environment != 'none' && needs.build.outputs.deploy-environment != 'production'
 
     steps:
     - name: Get branch name
@@ -75,14 +76,14 @@ jobs:
 
     - name: Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.check.outputs.deploy-environment }}
       run: |
-        echo "Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.check.outputs.deploy-environment }}"
+        echo "Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.build.outputs.deploy-environment }}"
 
 
   deploy-prod:
     needs: build
     name: Deploy to Production
     runs-on: ubuntu-latest
-    if: needs.check.outputs.deploy-environment == 'production'
+    if: needs.build.outputs.deploy-environment == 'production'
     environment: production
 
     steps:
@@ -90,6 +91,6 @@ jobs:
       id: branch-name
       uses: tj-actions/branch-names@v5
 
-    - name: Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.check.outputs.deploy-environment }}
+    - name: Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.build.outputs.deploy-environment }}
       run: |
-        echo "Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.check.outputs.deploy-environment }}"
+        echo "Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.build.outputs.deploy-environment }}"
