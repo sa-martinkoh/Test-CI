@@ -18,7 +18,13 @@ jobs:
     if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
-    - run:  |
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+
+    - id: check
+      run:  |
         if git rev-parse -q --verify "refs/tags/${{ github.event.inputs.tag }}" >/dev/null; then
           echo "tag '${{ github.event.inputs.message }}' already exists"
         else
