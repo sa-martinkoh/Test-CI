@@ -10,11 +10,11 @@ on:
         - Shareable Asset
         - Liberty
       tag:
-        description: 'Create tag for main branch'
+        description: 'Tag for main branch'
 
 jobs:
   create-tag:
-    name: Creating tag ${{ github.event.inputs.message }}
+    name: Creating tag ${{ github.event.inputs.tag }} for master branch
     if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
