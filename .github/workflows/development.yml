@@ -48,7 +48,7 @@ jobs:
 
   build:
     needs: check
-    name: Build and Deploy to ${{ needs.check.outputs.deploy-environment }}
+    name: Building branch '${{ github.ref_name }}'
     runs-on: ubuntu-latest
     if: needs.check.outputs.deploy-environment != 'none'
 
