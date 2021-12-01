@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       platform:
+        description: 'Platform'
         type: choice
         required: true
         options:
@@ -11,6 +12,11 @@ on:
         - Liberty
       tag:
         description: 'Tag for main branch'
+      deploy:
+        description: 'Deploy'
+        type: boolean
+      passphrase:
+        description: 'Passphrase for production deployment'
 
 jobs:
   print:
