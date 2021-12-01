@@ -13,7 +13,7 @@ on:
       deploy:
         description: 'Deploy'
         type: boolean
-      passphrase:
+      deploy_token:
         description: 'Passphrase for production deployment'
       tag:
         description: 'Tag for main branch'
@@ -21,10 +21,13 @@ on:
 jobs:
   print:
     name: Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
-    env:
-      DEPLOY_TOKEN: ${{ github.event.inputs.passphrase }}
     runs-on: ubuntu-latest
     steps:
+    - id: init
+      run: echo "::set-output name=passphrase::${{ github.event.inputs.deploy_token }}"
+    - run: |
+        passphrase="${{ steps.init.outputs.passphrase }}"
+        echo "::"
     - run: echo Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
 
   check:
