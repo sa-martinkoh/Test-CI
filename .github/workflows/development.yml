@@ -41,6 +41,9 @@ jobs:
         elif [[ "${{ steps.branch-name.outputs.current_branch }}" =~ ^release/.* ]]
         then
           echo "::set-output name=environment::staging"
+        elif [[ "${{ steps.branch-name.outputs.current_branch }}" =~ ^hotfix/.* ]]
+        then
+          echo "::set-output name=environment::production"
         elif [[ "${{ steps.branch-name.outputs.current_branch }}" == 'main' ]]
         then
           echo "::set-output name=environment::production"
