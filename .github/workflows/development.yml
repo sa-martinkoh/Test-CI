@@ -10,17 +10,19 @@ on:
         options:
         - Shareable Asset
         - Liberty
-      tag:
-        description: 'Tag for main branch'
       deploy:
         description: 'Deploy'
         type: boolean
       passphrase:
         description: 'Passphrase for production deployment'
+      tag:
+        description: 'Tag for main branch'
 
 jobs:
   print:
     name: Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
+    env:
+      DEPLOY_TOKEN: ${{ github.event.inputs.passphrase }}
     runs-on: ubuntu-latest
     steps:
     - run: echo Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
@@ -117,35 +119,7 @@ jobs:
       run: |
         echo "Building branch ${{ steps.branch-name.outputs.current_branch }}"
 
-
-  deploy-nonprod:
-    needs: build
-    name: Deploy to ${{ needs.build.outputs.deploy-environment }}
-    runs-on: ubuntu-latest
-    if: needs.build.outputs.deploy-environment != 'none' && needs.build.outputs.deploy-environment != 'production'
-
-    steps:
-    - name: Get branch name
-      id: branch-name
-      uses: tj-actions/branch-names@v5
-
     - name: Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.build.outputs.deploy-environment }}
-      run: |
-        echo "Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.build.outputs.deploy-environment }}"
-
-
-  deploy-prod:
-    needs: build
-    name: Deploy to ${{ needs.build.outputs.deploy-environment }}
-    runs-on: ubuntu-latest
-    if: needs.build.outputs.deploy-environment == 'production'
-    environment: production
-
-    steps:
-    - name: Get branch name
-      id: branch-name
-      uses: tj-actions/branch-names@v5
-
-    - name: Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.build.outputs.deploy-environment }}
+      if: github.event.inputs.deploy == 'true' && needs.build.outputs.deploy-environment != 'none'
       run: |
         echo "Deploying branch ${{ steps.branch-name.outputs.current_branch }} to ${{ needs.build.outputs.deploy-environment }}"
