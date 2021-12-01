@@ -67,7 +67,7 @@ jobs:
 
     - id: check-and-create
       run:  |
-        if [[ github.ref_name != 'main' ]]
+        if [[ ${{ github.ref_name }} != 'main' ]]
         then
           echo "skipping create tag for '${{ github.ref_name }}' branch"
           echo "::set-output name=deploy-ref::${{ steps.branch-name.outputs.current_branch }}"
