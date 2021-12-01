@@ -13,28 +13,7 @@ on:
         description: 'Tag for main branch'
 
 jobs:
-  create-tag:
-    name: Creating tag ${{ github.event.inputs.tag }} for 'main' branch
-    if: github.ref_name == 'main'
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-
-    - id: check
-      run:  |
-        if git rev-parse -q --verify "refs/tags/${{ github.event.inputs.tag }}" >/dev/null; then
-          echo "tag '${{ github.event.inputs.tag }}' already exists"
-        else
-          echo Creating tag '${{ github.event.inputs.tag }}'
-          git tag '${{ github.event.inputs.tag }}'
-          git push origin '${{ github.event.inputs.tag }}'
-        fi
-
   print:
-    needs: create-tag
     name: Deploying branch '${{ github.ref_name }}' for ${{ github.event.inputs.platform }}
     runs-on: ubuntu-latest
     steps:
@@ -69,24 +48,61 @@ jobs:
           echo "::set-output name=environment::none"
         fi
 
-  build:
+  create-tag:
     needs: check
-    name: Building branch '${{ github.ref_name }}'
+    name: Creating tag ${{ github.event.inputs.tag }} for 'main' branch
     runs-on: ubuntu-latest
-    if: needs.check.outputs.deploy-environment != 'none'
     outputs:
-      deploy-environment: ${{ steps.building.outputs.environment }}
-
+      deploy-ref: ${{ steps.check-and-create.outputs.deploy-ref }}
+      deploy-environment: ${{ needs.check.outputs.deploy-environment }}
     steps:
     - name: Get branch name
       id: branch-name
       uses: tj-actions/branch-names@v5
 
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - id: check-and-create
+      run:  |
+        if [[ github.ref_name != 'main' ]]
+        then
+          echo "skipping create tag for '${{ github.ref_name }}' branch"
+          echo "::set-output name=deploy-ref::${{ steps.branch-name.outputs.current_branch }}"
+        if [[ git rev-parse -q --verify "refs/tags/${{ github.event.inputs.tag }}" >/dev/null; ]]
+        then
+          echo "tag '${{ github.event.inputs.tag }}' already exists"
+          echo "::set-output name=deploy-ref::${{ github.event.inputs.tag }}"
+        else
+          echo Creating tag '${{ github.event.inputs.tag }}'
+          git tag '${{ github.event.inputs.tag }}'
+          git push origin '${{ github.event.inputs.tag }}'
+          echo "::set-output name=deploy-ref::${{ github.event.inputs.tag }}"
+        fi
+
+  build:
+    needs: create-tag
+    name: Building branch '${{ github.ref_name }}'
+    runs-on: ubuntu-latest
+    if: needs.create-tag.outputs.deploy-environment != 'none'
+    outputs:
+      deploy-environment: ${{ needs.create-tag.outputs.deploy-environment }}
+    steps:
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ needs.create-tag.outputs.deploy-ref }}
+
     - name: Building branch ${{ steps.branch-name.outputs.current_branch }}
       id: building
       run: |
         echo "Building branch ${{ steps.branch-name.outputs.current_branch }}"
-        echo "::set-output name=environment::${{ needs.check.outputs.deploy-environment }}"
 
 
   deploy-nonprod:
