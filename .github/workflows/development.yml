@@ -50,7 +50,7 @@ jobs:
 
   create-tag:
     needs: check
-    name: Check and create tag '${{ github.event.inputs.tag }}' ('main' branch only)
+    name: ['main' branch only] Check and create tag '${{ github.event.inputs.tag }}'
     runs-on: ubuntu-latest
     outputs:
       deploy-ref: ${{ steps.check-and-create.outputs.deploy-ref }}
