@@ -71,6 +71,10 @@ jobs:
         then
           echo "skipping create tag for '${{ github.ref_name }}' branch"
           echo "::set-output name=deploy-ref::${{ steps.branch-name.outputs.current_branch }}"
+        if [[ -z '${{ github.event.inputs.tag }}' ]]
+        then
+          echo "no tag provided for 'main' branch"
+          exit 1
         if git rev-parse -q --verify "refs/tags/${{ github.event.inputs.tag }}" >/dev/null;
         then
           echo "tag '${{ github.event.inputs.tag }}' already exists"
